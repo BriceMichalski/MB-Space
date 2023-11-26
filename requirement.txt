@@ -1,0 +1,13 @@
+certifi==2023.11.17
+charset-normalizer==3.3.2
+idna==3.5
+influxdb==5.3.1
+krpc==0.5.3
+loguru==0.7.2
+msgpack==1.0.7
+protobuf==4.25.1
+python-dateutil==2.8.2
+pytz==2023.3.post1
+requests==2.31.0
+six==1.16.0
+urllib3==2.1.0
