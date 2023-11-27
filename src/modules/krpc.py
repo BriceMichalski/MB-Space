@@ -1,6 +1,7 @@
 import krpc
 
 from .meta import Singleton
+from krpc import Client
 
 class KrpcHandler(metaclass=Singleton):
 
@@ -9,5 +10,5 @@ class KrpcHandler(metaclass=Singleton):
 
     @classmethod
     @property
-    def conn(cls):
+    def conn(cls) -> Client:
         return cls().conn

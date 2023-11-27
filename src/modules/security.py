@@ -1,6 +1,6 @@
 import time
 
-from .krpcw import KrpcHandler
+from .krpc import KrpcHandler
 from threading import Thread
 from loguru import logger
 
