@@ -1,5 +1,5 @@
 import time
-from modules.flight import Ship
+from modules.ship import Ship
 
 if __name__ == '__main__':
 
@@ -8,10 +8,12 @@ if __name__ == '__main__':
 
     time.sleep(5)
     ship.start()
-    ship.prepare()
 
-    time.sleep(5)
+
+    ## Orbit
+    ship.ascension_computer.setup(orbit_target_altitude=75000,turn_start_altitude=2500)
+    ship.ascension_computer.engage()
+
+    # # Launch
+    # time.sleep(5)
     ship.launch()
-
-    time.sleep(10)
-    ship.auto_pilot_target_pitch_and_heading(60,90)

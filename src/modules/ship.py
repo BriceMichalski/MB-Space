@@ -4,6 +4,7 @@ from .krpc import KrpcHandler
 from .telemetry import TelemetryRecorder
 from .security import ParachuteHandler
 from .science import ScienceCollector
+from .computer import AscensionComputer,TWRComputer, DirectionComputer
 
 from threading import Thread
 
@@ -22,6 +23,11 @@ class Ship:
             # ScienceCollector.process
         ]
 
+        self.ascension_computer = AscensionComputer()
+        self.direction_computer = DirectionComputer()
+        self.twr_computer = TWRComputer()
+
+
     def start(self):
         logger.trace("Ship starting")
         for process in self.ppool:
@@ -34,23 +40,13 @@ class Ship:
             process.join()
         logger.trace("Ship stopped")
 
-    def prepare(self):
-        logger.trace("Ship preparation start")
-        self.auto_pilot_target_pitch_and_heading(90, 90)
-        self.vessel.auto_pilot.engage()
-        self.vessel.control.throttle = 1
-        logger.trace("Ship preparation finished")
-
-    def auto_pilot_target_pitch_and_heading(self, pitch: float, heading: float):
-        self.vessel.auto_pilot.target_pitch_and_heading(pitch, heading)
-        logger.info("Ship auto pilot pitch and heading cahnge for : [{},{}]".format(pitch,heading))
-
-    def auto_pilot_engage(self):
-        self.vessel.auto_pilot.engage()
-        logger.info("Ship auto pilot engaged")
-
     def launch(self):
+        self.direction_computer.prepare_to_launch()
+        self.vessel.control.throttle = 1
+        self.vessel.auto_pilot.engage()
+
         self.vessel.control.activate_next_stage()
+
 
 class StageDropper:
     @classmethod
@@ -60,6 +56,7 @@ class StageDropper:
 
     def __init__(self) -> None:
         self.vessel :Vessel = KrpcHandler.conn.space_center.active_vessel
+        self.engage_alt = 200
         self.tps = 1 # tick per second
 
     def checkFuelInstage(self):
@@ -76,11 +73,19 @@ class StageDropper:
     def run(self):
         logger.debug("StageDropper start.")
         try:
-            while True:
+            altitude = self.vessel.flight().mean_altitude
+            while altitude < self.engage_alt:
+                time.sleep(0.1)
+                altitude = self.vessel.flight().mean_altitude
+
+            logger.debug("StageDropper engaged")
+            while self.vessel.control.current_stage > 1:
                 self.checkFuelInstage()
                 time.sleep(self.tps)
         finally:
             logger.debug("StageDropper stop.")
 
     def thread(self):
+
         return Thread(target=self.run)
+
